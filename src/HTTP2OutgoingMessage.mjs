@@ -1,7 +1,7 @@
 'use strict';
 
 
-import types from '../es-modules/distributed-systems/types/v1.0.0/src/types.mjs';
+import types from '../es-modules/ee/types/x/src/types.mjs';
 
 
 
@@ -135,12 +135,26 @@ export default class HTTP2OutgoingMessage {
     *
     * @returns {object} this
     */
-    setHeader(key, value) {
+    setHeader(key, value, encode) {
         key = key.toLowerCase();
 
-        if (!this._headers.has(key)) this._headers.set(key, value);
-        else if (Array.isArray(this._headers.get(key))) this._headers.get(key).push(value);
-        else this._headers.set(key, [this._headers.get(key), value]);
+        if (encode) {
+            value = new Buffer(value).toString('base64');
+            let fields;
+
+            if (this.hasHeader('encoded-header-fields')) {
+                fields = this.getHeader('encoded-header-fields').split(',');
+            } else {
+                fields = [];
+            }
+
+            fields.push(key);
+
+            this.setHeader('encoded-header-fields', fields.join(','));
+        }
+
+        if (Array.isArray(this._headers.get(key))) this._headers.get(key).push(value);
+        else this._headers.set(key, value);
 
         return this;
     }

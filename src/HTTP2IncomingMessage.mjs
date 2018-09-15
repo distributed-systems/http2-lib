@@ -21,6 +21,7 @@ export default class HTTP2IncomingMessage {
     * check if a certain header was set
     */
     hasHeader(headerName) {
+        headerName = headerName.toLowerCase();
         return !!this._headers[headerName];
     }
 
@@ -30,7 +31,30 @@ export default class HTTP2IncomingMessage {
     * get one header
     */
     getHeader(headerName) {
+        headerName = headerName.toLowerCase();
+
+        if (this.hasHeader('encoded-header-fields')) {
+            const encodedHeaders = new Set(this._headers['encoded-header-fields'].split(','));
+
+            if (encodedHeaders.has(headerName)) {
+                return new Buffer(this._headers[headerName], 'base64').toString();
+            }
+        }
+
         return this._headers[headerName];
+    }
+
+
+
+    /**
+     * set a header value
+     *
+     * @param      {string}  key     The key
+     * @param      {*}       value   The value
+     */
+    setHeader(headerName, value) {
+        headerName = headerName.toLowerCase();
+        this._headers[headerName] = value;
     }
 
 
