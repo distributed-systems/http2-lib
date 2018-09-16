@@ -1,0 +1,22 @@
+{
+  "name": "@distributed-systems/http2-lib",
+  "version": "1.0.0",
+  "description": "HTTP2 helper library",
+  "main": "./npm/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/distributed-systems/http2-lib.git"
+  },
+  "keywords": [
+    "http2"
+  ],
+  "author": "Michael van der Weg",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/distributed-systems/http2-lib/issues"
+  },
+  "homepage": "https://github.com/distributed-systems/http2-lib#readme"
+}
