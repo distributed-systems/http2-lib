@@ -1,7 +1,3 @@
-'use strict';
-
-
-
 export default class HTTP2IncomingMessage {
 
     constructor({

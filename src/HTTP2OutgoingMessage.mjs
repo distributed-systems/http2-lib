@@ -1,9 +1,4 @@
-'use strict';
-
-
-import types from '../es-modules/ee/types/x/src/types.mjs';
-
-
+import types from '../es-modules/distributed-systems/types/1.x/types.mjs';
 
 
 
