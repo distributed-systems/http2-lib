@@ -72,26 +72,33 @@ export default class HTTP2IncomingMessage {
     * get data, text & json gets decoded automatically
     */
     async getData() {
-        const buffer = await this.getBuffer();
-        let contentType = this.getHeader('content-type');
+        if (!this._data) {
+            const buffer = await this.getBuffer();
+            let contentType = this.getHeader('content-type');
 
-        if (contentType) contentType = contentType.toLowerCase();
-        else return buffer;
+            if (contentType) {
+                contentType = contentType.toLowerCase();
 
-        if (buffer && buffer.length) {
-            if (contentType === 'application/json') {
-                try {
-                    return JSON.parse(buffer.toString());
-                } catch (e) {
-                    throw new Error(`Failed to decode json: ${e.message}`);
+                if (buffer && buffer.length) {
+                    if (contentType === 'application/json') {
+                        try {
+                            this._data = JSON.parse(buffer.toString());
+                        } catch (e) {
+                            throw new Error(`Failed to decode json: ${e.message}`);
+                        }
+                    } else if (contentType.startsWith('text/')) {
+                        this._data = buffer.toString();
+                    }
                 }
-            } else if (contentType.startsWith('text/')) {
-                return buffer.toString();
+            } else {
+                this._data = buffer;
             }
-        } 
-
-        return buffer;
+        }
+       
+        return this._data;
     }
+
+
 
 
 
