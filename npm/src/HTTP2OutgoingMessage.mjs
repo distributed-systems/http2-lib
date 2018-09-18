@@ -1,4 +1,4 @@
-import types from '@distributed-systems/types';
+import types from '@distributed-systems/types/types.mjs';
 
 
 
