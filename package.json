@@ -1,8 +1,8 @@
 {
   "name": "@distributed-systems/http2-lib",
-  "version": "1.1.1",
+  "version": "1.1.3",
   "description": "HTTP2 helper library",
-  "main": "./npm/index.js",
+  "main": "./npm/index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/distributed-systems/http2-lib/issues"
   },
-  "homepage": "https://github.com/distributed-systems/http2-lib#readme"
+  "homepage": "https://github.com/distributed-systems/http2-lib#readme",
+  "dependencies": {
+    "@distributed-systems/types": "^1.0.0"
+  }
 }
