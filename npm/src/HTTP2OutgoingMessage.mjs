@@ -1,9 +1,12 @@
 import types from '@distributed-systems/types/types.mjs';
+import EventEmitter from 'events';
 
 
+export default class HTTP2OutgoingMessage extends EventEmitter {
 
-export default class HTTP2OutgoingMessage {
+    
     constructor() {
+        super();
         this._headers = new Map();
     }
 

@@ -1,9 +1,13 @@
-export default class HTTP2IncomingMessage {
+import EventEmitter from 'events';
+
+export default class HTTP2IncomingMessage extends EventEmitter {
 
     constructor({
         stream,
         headers,
     }) {
+        super();
+        
         this._stream = stream;
         this._headers = headers;
     }
