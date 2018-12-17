@@ -84,7 +84,7 @@ export default class HTTP2IncomingMessage extends EventEmitter {
                 contentType = contentType.toLowerCase();
 
                 if (buffer && buffer.length) {
-                    if (contentType === 'application/json') {
+                    if (contentType.startsWith('application/json')) {
                         try {
                             this._data = JSON.parse(buffer.toString());
                         } catch (e) {
