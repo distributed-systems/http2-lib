@@ -1,6 +1,6 @@
 {
   "name": "@distributed-systems/http2-lib",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "HTTP2 helper library",
   "main": "./npm/index.js",
   "scripts": {
