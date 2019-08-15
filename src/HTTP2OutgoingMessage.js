@@ -1,4 +1,4 @@
-import types from '../es-modules/distributed-systems/types/1.x/types.mjs';
+import types from '../es-modules/distributed-systems/types/1.x/types.js';
 import EventEmitter from 'events';
 
 
