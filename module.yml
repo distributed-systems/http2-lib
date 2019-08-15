@@ -6,7 +6,7 @@ commands:
 npm-convert:
     source:
         - ./src
-        - ./index.mjs
+        - ./index.js
     destination: ./npm
     mapping:
         distributed-systems/types: @distributed-systems/types
