@@ -1,6 +1,6 @@
 {
   "name": "@distributed-systems/http2-lib",
-  "version": "1.4.1",
+  "version": "2.0.1",
   "description": "HTTP2 helper library",
   "main": "./npm/index.js",
   "scripts": {
@@ -13,14 +13,14 @@
   "keywords": [
     "http2"
   ],
-  "author": "Michael van der Weg",
+  "author": "Lina van der Weg",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/distributed-systems/http2-lib/issues"
   },
   "homepage": "https://github.com/distributed-systems/http2-lib#readme",
   "dependencies": {
-    "@distributed-systems/types": "^1.0.0"
+    "@distributed-systems/types": "^2.0.0"
   },
   "type": "module"
 }
