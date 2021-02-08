@@ -92,6 +92,8 @@ export default class HTTP2IncomingMessage extends EventEmitter {
                         }
                     } else if (contentType.startsWith('text/')) {
                         this._data = buffer.toString();
+                    } else {
+                        this._data = buffer;
                     }
                 }
             } else {
