@@ -24,9 +24,10 @@ export default class HTTP2IncomingMessage extends EventEmitter {
      * @param      {Stream}  stream  The stream
      */
     setUpSessionEvents(stream) {
-        const goAwayListener = (...params) => {
+        const goAwayListener = (errorCode, lastStreamID, opaqueData) => {
             this._sessionIsClosed = true;
-            this.emit('goaway', ...params);
+            this._sessionErrorCode = errorCode;
+            this.emit('goaway', errorCode, lastStreamID, opaqueData);
         };
 
         // the stream may decide to go away
