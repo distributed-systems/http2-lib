@@ -10,9 +10,37 @@ export default class HTTP2IncomingMessage extends EventEmitter {
         
         this._stream = stream;
         this._headers = headers;
+        this._sessionIsClosed = false;
+
+        this.setUpSessionEvents(stream);
     }
 
 
+
+
+    /**
+     * check if the session of this stream gets closed while we're busy
+     *
+     * @param      {Stream}  stream  The stream
+     */
+    setUpSessionEvents(stream) {
+        const goAwayListener = (...params) => {
+            this._sessionIsClosed = true;
+            this.emit('goaway', ...params);
+        };
+
+        // the stream may decide to go away
+        stream.session.on('goaway', goAwayListener);
+
+
+        const removeListener = () => {
+            stream.removeListener('goaway', goAwayListener);
+        };
+
+        // remove the event handler after the sream is closed
+        stream.on('close', removeListener);
+        stream.on('error', removeListener);
+    }
 
 
 
