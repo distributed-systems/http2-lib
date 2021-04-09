@@ -1,5 +1,26 @@
 import EventEmitter from 'events';
 
+
+
+const ngErrors = new Map([
+    [0, 'NGHTTP2_NO_ERROR'],
+    [1, 'NGHTTP2_PROTOCOL_ERROR'],
+    [2, 'NGHTTP2_INTERNAL_ERROR'],
+    [3, 'NGHTTP2_FLOW_CONTROL_ERROR'],
+    [4, 'NGHTTP2_SETTINGS_TIMEOUT'],
+    [5, 'NGHTTP2_STREAM_CLOSED'],
+    [6, 'NGHTTP2_FRAME_SIZE_ERROR'],
+    [7, 'NGHTTP2_REFUSED_STREAM'],
+    [8, 'NGHTTP2_CANCEL'],
+    [9, 'NGHTTP2_COMPRESSION_ERROR'],
+    [10, 'NGHTTP2_CONNECT_ERROR'],
+    [11, 'NGHTTP2_ENHANCE_YOUR_CALM'],
+    [12, 'NGHTTP2_INADEQUATE_SECURITY'],
+    [13, 'NGHTTP2_HTTP_1_1_REQUIRED'],
+]);
+
+
+
 export default class HTTP2IncomingMessage extends EventEmitter {
 
     constructor({
@@ -27,6 +48,7 @@ export default class HTTP2IncomingMessage extends EventEmitter {
         const goAwayListener = (errorCode, lastStreamID, opaqueData) => {
             this._sessionIsClosed = true;
             this._sessionErrorCode = errorCode;
+            this._sessionErrorName = ngErrors.has(errorCode) ? ngErrors.get(errorCode) : 'N/A';
             this.emit('goaway', errorCode, lastStreamID, opaqueData);
         };
 
