@@ -39,6 +39,11 @@ export default class HTTP2IncomingMessage extends EventEmitter {
 
 
 
+    getIp() {
+        return this._stream.session.socket.remoteAddress;
+    }
+
+
     /**
      * check if the session of this stream gets closed while we're busy
      *
