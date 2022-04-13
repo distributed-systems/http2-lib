@@ -33,20 +33,18 @@ export default class HTTP2IncomingMessage extends EventEmitter {
         this._headers = headers;
         this._sessionIsClosed = false;
 
-        this._stream.once('end', () => {
-            this._stream.removeAllListeners();
-            this._stream = null;
-        });
-
-        this._stream.once('error', () => {
-            this._stream.removeAllListeners();
-            this._stream = null;
-        });
-
         this.setUpSessionEvents(stream);
     }
 
 
+    
+    destroy() {
+        if (this._stream) {
+            this._stream.removeAllListeners();
+            this._stream.destroy();
+            this._stream = null;
+        }
+    }
 
 
     getIp() {
