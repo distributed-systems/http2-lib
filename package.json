@@ -20,7 +20,11 @@
   },
   "homepage": "https://github.com/distributed-systems/http2-lib#readme",
   "dependencies": {
-    "@distributed-systems/types": "^2.0.0"
+    "@distributed-systems/types": "^2.0.0",
+    "logd": "^2.3.1"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "logd-console-transport": "^1.1.0"
+  }
 }

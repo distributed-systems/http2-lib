@@ -1,81 +1,85 @@
-import EventEmitter from 'events';
+import logd from 'logd';
+import EventEmitter from 'events'
+
+
+const log = logd.module('HTTP2IncomingMessage');
 
 
 
-const ngErrors = new Map([
-    [0, 'NGHTTP2_NO_ERROR'],
-    [1, 'NGHTTP2_PROTOCOL_ERROR'],
-    [2, 'NGHTTP2_INTERNAL_ERROR'],
-    [3, 'NGHTTP2_FLOW_CONTROL_ERROR'],
-    [4, 'NGHTTP2_SETTINGS_TIMEOUT'],
-    [5, 'NGHTTP2_STREAM_CLOSED'],
-    [6, 'NGHTTP2_FRAME_SIZE_ERROR'],
-    [7, 'NGHTTP2_REFUSED_STREAM'],
-    [8, 'NGHTTP2_CANCEL'],
-    [9, 'NGHTTP2_COMPRESSION_ERROR'],
-    [10, 'NGHTTP2_CONNECT_ERROR'],
-    [11, 'NGHTTP2_ENHANCE_YOUR_CALM'],
-    [12, 'NGHTTP2_INADEQUATE_SECURITY'],
-    [13, 'NGHTTP2_HTTP_1_1_REQUIRED'],
-]);
-
-
+/**
+ * on the server side: request
+ * on the client side: response
+ */
 
 export default class HTTP2IncomingMessage extends EventEmitter {
 
-    constructor({
-        stream,
-        headers,
-    }) {
+    constructor(http2Stream = null, headers = {}) {
         super();
         
-        this._stream = stream;
         this._headers = headers;
-        this._sessionIsClosed = false;
 
-        this.setUpSessionEvents(stream);
-    }
-
-
-    
-    destroy() {
-        if (this._stream) {
-            this._stream.removeAllListeners();
-            this._stream.destroy();
-            this._stream = null;
+        if (http2Stream) {
+            this.setStream(http2Stream);
         }
     }
 
 
-    getIp() {
-        return this._stream.session.socket.remoteAddress;
+
+    setStream(http2Stream) {
+        this._http2Stream = http2Stream;
+
+        this._http2Stream.once('end', (err) => {
+            this._handleDestroyedStream(err);
+        });
+    }
+
+
+
+    /**
+     * Handle sessions that are destroyed
+     * 
+     * @param {Error} err 
+     */
+     _handleDestroyedStream(err) {
+        if (err) {
+            log.error(`Stream error: ${err,message}`, err);
+            this.emit('error', err);
+        }
+
+        this._end(err);
     }
 
 
     /**
-     * check if the session of this stream gets closed while we're busy
-     *
-     * @param      {Stream}  stream  The stream
+     * clean uop events in preparation for the session termination
      */
-    setUpSessionEvents(stream) {
-        const goAwayListener = (errorCode, lastStreamID, opaqueData) => {
-            this._sessionIsClosed = true;
-            this._sessionErrorCode = errorCode;
-            this._sessionErrorName = ngErrors.has(errorCode) ? ngErrors.get(errorCode) : 'N/A';
-            this.emit('goaway', errorCode, lastStreamID, opaqueData);
-        };
+    _end(err) {
+        // even if this handler is added before others it should
+        // be called last
+        setImmediate(() => {
+             // make sure no events are handled anymore
+            this._http2Stream.removeAllListeners();
 
-        // the stream may decide to go away
-        stream.session.on('goaway', goAwayListener);
+            // tell the outside that the stream has ended
+            this.emit('end', err);
+
+            // remove all event handlers
+            this.removeAllListeners();
+
+            // remove all references
+            this._http2Stream = null;
+        });
+    }
 
 
-        const removeListener = () => {
-            stream.removeListener('goaway', goAwayListener);
-        };
+    streamIsClosed() {
+        return this._http2Stream.isClosed();
+    }
 
-        // remove the event handler after the sream is closed
-        stream.on('close', removeListener);
-        stream.on('error', removeListener);
+
+
+    getIp() {
+        return this._http2Stream.getIp();
     }
 
 
@@ -177,20 +181,7 @@ export default class HTTP2IncomingMessage extends EventEmitter {
     * get all data as a single buffer
     */
     async getBuffer() {
-        return new Promise((resolve, reject) => {
-            let dataBuffer;
-
-            this._stream.on('data', (chunk) => {
-                if (!dataBuffer) dataBuffer = chunk;
-                else dataBuffer += chunk;
-            });
-
-            this._stream.once('end', () => {
-                resolve(dataBuffer);
-            });
-
-            this._stream.once('error', reject);
-        });
+        return this._http2Stream.getBuffer();
     }
 
 
@@ -201,6 +192,6 @@ export default class HTTP2IncomingMessage extends EventEmitter {
     * get the bare stream
     */
     stream() {
-        return this._stream;
+        return this._http2Stream.getStream();
     }
 }

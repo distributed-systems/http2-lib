@@ -1,17 +1,85 @@
-import types from '../es-modules/distributed-systems/types/1.x/types.js';
+import types from '@distributed-systems/types';
 import EventEmitter from 'events';
+
+
+/**
+ * on the server side: response
+ * on the client side: request
+ */
 
 
 export default class HTTP2OutgoingMessage extends EventEmitter {
 
     
-    constructor() {
+    constructor(stream) {
         super();
+
+        if (stream) {
+            this.setStream(stream);
+        }
+        
         this._headers = new Map();
     }
 
 
+    getStream() {
+        return this._stream;
+    }
 
+
+    setStream(stream) {
+        this._stream = stream;
+        this._headers = new Map();
+
+        this._stream.once('close', () => {
+            this._handleDestroyedStream();
+        });
+        
+        this._stream.once('error', (err) => {
+            this._handleDestroyedStream(err);
+        });
+    }
+
+    
+    /**
+     * Handle sessions that are destroyed
+     * 
+     * @param {Error} err 
+     */
+     _handleDestroyedStream(err) {
+        if (err) {
+            log.error(`Stream error: ${err,message}`, err);
+            this.emit('error', err);
+        }
+
+        this._end(err);
+    }
+
+
+    /**
+     * clean uop events in preparation for the session termination
+     */
+    _end(err) {
+        setImmediate(() => {
+            // make sure no events are handled anymore
+            this._stream.removeAllListeners();
+
+            // tell the outside that the stream has ended
+            this.emit('end', err);
+
+            // remove all event handlers
+            this.removeAllListeners();
+
+            // remove all references
+            this._stream = null;
+            this._request = null;
+        });
+    }
+
+
+    streamIsClosed() {
+        return this._stream.closed || this._stream.destroyed || this._stream.aborted;
+    }
 
     /**
     * prepare the data for sending
