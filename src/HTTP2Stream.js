@@ -1,10 +1,11 @@
+import EventEmitter from 'events';
 
 
-
-export default class HTTP2Stream {
+export default class HTTP2Stream extends EventEmitter {
 
 
     constructor(stream) {
+        super();
         this.setStream(stream);
     }
 
