@@ -33,6 +33,16 @@ export default class HTTP2IncomingMessage extends EventEmitter {
         this._headers = headers;
         this._sessionIsClosed = false;
 
+        this._stream.once('end', () => {
+            this._stream.removeAllListeners();
+            this._stream = null;
+        });
+
+        this._stream.once('error', () => {
+            this._stream.removeAllListeners();
+            this._stream = null;
+        });
+
         this.setUpSessionEvents(stream);
     }
 
@@ -177,11 +187,11 @@ export default class HTTP2IncomingMessage extends EventEmitter {
                 else dataBuffer += chunk;
             });
 
-            this._stream.on('end', () => {
+            this._stream.once('end', () => {
                 resolve(dataBuffer);
             });
 
-            this._stream.on('error', reject);
+            this._stream.once('error', reject);
         });
     }
 
