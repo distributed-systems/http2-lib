@@ -6,6 +6,5 @@ import HTTP2Stream from './src/HTTP2Stream.js';
 export {
     HTTP2IncomingMessage,
     HTTP2OutgoingMessage,
-    HTTP2Session,
     HTTP2Stream,
 }
