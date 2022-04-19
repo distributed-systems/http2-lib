@@ -1,4 +1,8 @@
 import EventEmitter from 'events';
+import logd from 'logd';
+
+const log = logd.module('HTTP2Stream');
+
 
 
 export default class HTTP2Stream extends EventEmitter {
@@ -72,7 +76,6 @@ export default class HTTP2Stream extends EventEmitter {
      */
      _handleDestroyedStream(err) {
         if (err) {
-            log.error(`Stream error: ${err,message}`, err);
             this.emit('error', err);
         }
 
@@ -86,7 +89,7 @@ export default class HTTP2Stream extends EventEmitter {
     _end(err) {
         setImmediate(() => {
             // make sure no events are handled anymore
-            this._stream.removeAllListeners();
+            if (this._stream) this._stream.removeAllListeners();
 
             // tell the outside that the stream has ended
             this.emit('end', err);

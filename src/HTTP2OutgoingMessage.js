@@ -1,6 +1,9 @@
 import types from '@distributed-systems/types';
 import EventEmitter from 'events';
+import logd from 'logd';
 
+
+const log = logd.module('HTTP2OutgoingMessage');
 
 /**
  * on the server side: response
@@ -53,7 +56,8 @@ export default class HTTP2OutgoingMessage extends EventEmitter {
      */
      _handleDestroyedStream(err) {
         if (err) {
-            log.error(`Stream error: ${err,message}`, err);
+            err.message = this.getErrorSignature(err);
+            log.error(`Stream error: ${err.message}`, err);
             this.emit('error', err);
         }
 
