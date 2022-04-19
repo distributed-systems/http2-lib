@@ -2,7 +2,7 @@
   "name": "@distributed-systems/http2-lib",
   "version": "3.0.4",
   "description": "HTTP2 helper library",
-  "main": "./npm/index.js",
+  "main": "./index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
