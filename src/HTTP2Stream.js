@@ -81,7 +81,7 @@ export default class HTTP2Stream extends EventEmitter {
 
 
     /**
-     * clean uop events in preparation for the session termination
+     * clean up events in preparation for the session termination
      */
     _end(err) {
         setImmediate(() => {
@@ -98,5 +98,11 @@ export default class HTTP2Stream extends EventEmitter {
             this._stream = null;
             this._request = null;
         });
+    }
+
+
+
+    end(code) {
+        this.getStream().close(code);
     }
 }

@@ -23,6 +23,14 @@ export default class HTTP2IncomingMessage extends EventEmitter {
         }
     }
 
+    getStream() {
+        return this._http2Stream;
+    }
+
+
+    getRawStream() {
+        return this._http2Stream.getStream();
+    }
 
 
     setStream(http2Stream) {
@@ -73,7 +81,7 @@ export default class HTTP2IncomingMessage extends EventEmitter {
 
 
     streamIsClosed() {
-        return this._http2Stream.isClosed();
+        return this._http2Stream === null ? true : this._http2Stream.isClosed();
     }
 
 

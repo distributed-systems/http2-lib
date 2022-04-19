@@ -11,11 +11,11 @@ import EventEmitter from 'events';
 export default class HTTP2OutgoingMessage extends EventEmitter {
 
     
-    constructor(stream) {
+    constructor(http2Stream) {
         super();
 
-        if (stream) {
-            this.setStream(stream);
+        if (http2Stream) {
+            this.setStream(http2Stream);
         }
         
         this._headers = new Map();
@@ -23,19 +23,24 @@ export default class HTTP2OutgoingMessage extends EventEmitter {
 
 
     getStream() {
-        return this._stream;
+        return this._http2Stream;
     }
 
 
-    setStream(stream) {
-        this._stream = stream;
+    getRawStream() {
+        return this._http2Stream.getStream();
+    }
+
+
+    setStream(http2Stream) {
+        this._http2Stream = http2Stream;
         this._headers = new Map();
 
-        this._stream.once('close', () => {
+        this._http2Stream.once('close', () => {
             this._handleDestroyedStream();
         });
         
-        this._stream.once('error', (err) => {
+        this._http2Stream.once('error', (err) => {
             this._handleDestroyedStream(err);
         });
     }
@@ -62,7 +67,7 @@ export default class HTTP2OutgoingMessage extends EventEmitter {
     _end(err) {
         setImmediate(() => {
             // make sure no events are handled anymore
-            this._stream.removeAllListeners();
+            this._http2Stream.removeAllListeners();
 
             // tell the outside that the stream has ended
             this.emit('end', err);
@@ -71,14 +76,14 @@ export default class HTTP2OutgoingMessage extends EventEmitter {
             this.removeAllListeners();
 
             // remove all references
-            this._stream = null;
+            this._http2Stream = null;
             this._request = null;
         });
     }
 
 
     streamIsClosed() {
-        return this._stream.closed || this._stream.destroyed || this._stream.aborted;
+        return this._http2Stream.closed || this._http2Stream.destroyed || this._http2Stream.aborted;
     }
 
     /**
