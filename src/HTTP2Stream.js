@@ -19,7 +19,7 @@ export default class HTTP2Stream extends EventEmitter {
     }
 
     isClosed() {
-        return this._stream.closed || this._stream.destroyed || this._stream.aborted;
+        return !this._stream || this._stream.closed || this._stream.destroyed || this._stream.aborted;
     }
 
     setStream(stream) {
