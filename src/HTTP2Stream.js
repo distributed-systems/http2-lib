@@ -11,6 +11,7 @@ export default class HTTP2Stream extends EventEmitter {
     constructor(stream, identifier = 'n/a') {
         super();
         this.identifier = identifier;
+        this._streamFailed = false;
         this.setStream(stream);
     }
 
@@ -50,8 +51,13 @@ export default class HTTP2Stream extends EventEmitter {
             log.debug(`[${this.identifier}] stream event 'close'`);
             this._handleDestroyedStream();
         });
+
+        this._stream.once('aborted', () => {
+            this._streamFailed = true;
+        });
         
         this._stream.once('error', (err) => {
+            this._streamFailed = true;
             log.debug(`[${this.identifier}] stream event 'error'`);
 
             if (err.message.includes('NGHTTP2_ENHANCE_YOUR_CALM')) {
@@ -76,7 +82,11 @@ export default class HTTP2Stream extends EventEmitter {
     */
      async getBuffer() {
         if (this.isClosed()) {
-            throw new Error(`Cannot get data from stream, stream has ended already`);
+            if (this._streamFailed) {
+                throw new Error(`Cannot get data from stream, stream has ended abnormally`);
+            } else {
+                return undefined;
+            }
         }
 
         return new Promise((resolve, reject) => {
