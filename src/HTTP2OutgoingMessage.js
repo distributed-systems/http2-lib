@@ -57,7 +57,7 @@ export default class HTTP2OutgoingMessage extends EventEmitter {
      _handleDestroyedStream(err) {
         if (err) {
             err.message = this.getErrorSignature(err);
-            log.error(`Stream error: ${err.message}`, err);
+            log.debug(`Stream error: ${err.message}`);
             this.emit('error', err);
         }
 

@@ -71,7 +71,7 @@ export default class HTTP2Stream extends EventEmitter {
                 // close the stream, tell the session creator to back off a bit
                 this.emit('enhance_your_calm');
             }
-            
+
             this._handleDestroyedStream(err);
         });
     }
