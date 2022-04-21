@@ -67,13 +67,12 @@ export default class HTTP2Stream extends EventEmitter {
             log.debug(`[${this.identifier}] stream event 'error'`);
 
             if (err.message.includes('NGHTTP2_ENHANCE_YOUR_CALM')) {
-                log.debug(`NGHTTP2_ENHANCE_YOUR_CALM - need to slow down: ${err.message}`);
+                log.warn(`NGHTTP2_ENHANCE_YOUR_CALM - need to slow down: ${err.message}`);
                 // close the stream, tell the session creator to back off a bit
                 this.emit('enhance_your_calm');
-                this._handleDestroyedStream();
-            } else {
-                this._handleDestroyedStream(err);
             }
+            
+            this._handleDestroyedStream(err);
         });
     }
 
