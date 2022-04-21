@@ -126,6 +126,9 @@ export default class HTTP2OutgoingMessage extends EventEmitter {
                     }
                 }
             }
+
+            // set the content length
+            this.setHeader('content-length', this.getData().length);
         }
     }
 

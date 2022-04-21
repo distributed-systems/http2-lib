@@ -41,8 +41,10 @@ export default class HTTP2Stream extends EventEmitter {
             // this will emit a warning if the user does not consume
             // the data in a timely manner.
             this._dataConsumedTimeout = setTimeout(() => {
-                log.warn(`[${this.identifier}] stream data not consumed within 1000msces. Your application will leak memrory! Please call reponse.getData() to consume the data.`);
-            } , 1000);
+                //if (!stream.readableDidRead) {
+                    log.warn(`[${this.identifier}] stream data not consumed within 10 000 msces. Your application will leak memrory! Please call reponse.getData() to consume the data.`);
+                //}
+            } , 10000);
         });
 
         this._stream.once('close', () => {
@@ -50,6 +52,10 @@ export default class HTTP2Stream extends EventEmitter {
 
             log.debug(`[${this.identifier}] stream event 'close'`);
             this._handleDestroyedStream();
+        });
+
+        this._stream.once('pipe', () => {
+            clearTimeout(this._dataConsumedTimeout);
         });
 
         this._stream.once('aborted', () => {
@@ -93,6 +99,9 @@ export default class HTTP2Stream extends EventEmitter {
             let dataBuffer;
 
             this._stream.on('data', (chunk) => {
+                // make sure to not print warnings as long as data is conumed
+                clearTimeout(this._dataConsumedTimeout);
+
                 log.debug(`[${this.identifier}] stream event 'data'`);
                 if (!dataBuffer) dataBuffer = chunk;
                 else dataBuffer += chunk;
