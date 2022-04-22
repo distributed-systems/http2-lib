@@ -29,7 +29,7 @@ export default class HTTP2Stream extends EventEmitter {
         this._headers = new Map();
 
         this._stream.once('response', (headers) => {
-            log.debug(`[${this.identifier}] stream event 'response'`);
+            log.debug(`[${stream.id} - ${this.identifier}] stream event 'response'`);
 
             this.emit('response', headers);
 
@@ -42,7 +42,7 @@ export default class HTTP2Stream extends EventEmitter {
             // the data in a timely manner.
             this._dataConsumedTimeout = setTimeout(() => {
                 //if (!stream.readableDidRead) {
-                    log.warn(`[${this.identifier}] stream data not consumed within 10 000 msces. Your application will leak memrory! Please call reponse.getData() to consume the data.`);
+                    log.warn(`[${stream.id} - ${this.identifier}] stream data not consumed within 10 000 msces. Your application will leak memrory! Please call reponse.getData() to consume the data.`);
                 //}
             } , 10000);
         });
@@ -50,7 +50,7 @@ export default class HTTP2Stream extends EventEmitter {
         this._stream.once('close', () => {
             clearTimeout(this._dataConsumedTimeout);
 
-            log.debug(`[${this.identifier}] stream event 'close'`);
+            log.debug(`[${stream.id} - ${this.identifier}] stream event 'close'`);
             this._handleDestroyedStream();
         });
 
@@ -64,7 +64,7 @@ export default class HTTP2Stream extends EventEmitter {
         
         this._stream.once('error', (err) => {
             this._streamFailed = true;
-            log.debug(`[${this.identifier}] stream event 'error'`);
+            log.debug(`[${stream.id} - ${this.identifier}] stream event 'error'`);
 
             if (err.message.includes('NGHTTP2_ENHANCE_YOUR_CALM')) {
                 log.warn(`NGHTTP2_ENHANCE_YOUR_CALM - need to slow down: ${err.message}`);
@@ -101,13 +101,13 @@ export default class HTTP2Stream extends EventEmitter {
                 // make sure to not print warnings as long as data is conumed
                 clearTimeout(this._dataConsumedTimeout);
 
-                log.debug(`[${this.identifier}] stream event 'data'`);
+                log.debug(`[${this._stream.id} - ${this.identifier}] stream event 'data'`);
                 if (!dataBuffer) dataBuffer = chunk;
                 else dataBuffer += chunk;
             });
 
             this._stream.once('end', () => {
-                log.debug(`[${this.identifier}] stream event 'end'`);
+                log.debug(`[${this._stream.id} - ${this.identifier}] stream event 'end'`);
                 resolve(dataBuffer);
             });
 
@@ -122,6 +122,7 @@ export default class HTTP2Stream extends EventEmitter {
      * @param {Error} err 
      */
      _handleDestroyedStream(err) {
+        log.debug(`[Client stream:${this._stream ? this._stream.id : 'n/a'}] _handleDestroyedStream() method was called`);
         if (err) {
             log.debug(`[${this.identifier}] emit event 'error'`);
             this.emit('error', err);
@@ -152,6 +153,7 @@ export default class HTTP2Stream extends EventEmitter {
     
 
     end(code) {
+        log.debug(`[Client stream:${this._stream.id}] end() method was called`);
         this.getStream().close(code);
     }
 }
