@@ -23,13 +23,20 @@ export default class HTTP2Stream extends EventEmitter {
         return !this._stream || this._stream.closed || this._stream.destroyed || this._stream.aborted;
     }
 
+    getLogId() {
+        return `[Client stream ${this.streamId}; this.identifier]: `;
+    }
+
     setStream(stream) {
-        log.debug(`[${this.identifier}] setting stream`);
+        this.streamId = stream.id;
+
+        log.debug(`${this.getLogId()} setting stream`);
         this._stream = stream;
         this._headers = new Map();
 
+
         this._stream.once('response', (headers) => {
-            log.debug(`[${stream.id} - ${this.identifier}] stream event 'response'`);
+            log.debug(`${this.getLogId()} stream event 'response'`);
 
             this.emit('response', headers);
 
@@ -42,7 +49,7 @@ export default class HTTP2Stream extends EventEmitter {
             // the data in a timely manner.
             this._dataConsumedTimeout = setTimeout(() => {
                 //if (!stream.readableDidRead) {
-                    log.warn(`[${stream.id} - ${this.identifier}] stream data not consumed within 10 000 msces. Your application will leak memrory! Please call reponse.getData() to consume the data.`);
+                    log.warn(`${this.getLogId()} stream data not consumed within 10 000 msces. Your application will leak memrory! Please call reponse.getData() to consume the data.`);
                 //}
             } , 10000);
         });
@@ -50,7 +57,7 @@ export default class HTTP2Stream extends EventEmitter {
         this._stream.once('close', () => {
             clearTimeout(this._dataConsumedTimeout);
 
-            log.debug(`[${stream.id} - ${this.identifier}] stream event 'close'`);
+            log.debug(`${this.getLogId()} stream event 'close'`);
             this._handleDestroyedStream();
         });
 
@@ -64,7 +71,7 @@ export default class HTTP2Stream extends EventEmitter {
         
         this._stream.once('error', (err) => {
             this._streamFailed = true;
-            log.debug(`[${stream.id} - ${this.identifier}] stream event 'error'`);
+            log.debug(`${this.getLogId()} stream event 'error'`);
 
             if (err.message.includes('NGHTTP2_ENHANCE_YOUR_CALM')) {
                 log.warn(`NGHTTP2_ENHANCE_YOUR_CALM - need to slow down: ${err.message}`);
@@ -88,7 +95,7 @@ export default class HTTP2Stream extends EventEmitter {
      async getBuffer() {
         if (this.isClosed()) {
             if (this._streamFailed) {
-                throw new Error(`Cannot get data from stream, stream has ended abnormally`);
+                throw new Error(`${this.getLogId()} Cannot get data from stream, stream has ended abnormally`);
             } else {
                 return undefined;
             }
@@ -101,13 +108,13 @@ export default class HTTP2Stream extends EventEmitter {
                 // make sure to not print warnings as long as data is conumed
                 clearTimeout(this._dataConsumedTimeout);
 
-                log.debug(`[${this._stream.id} - ${this.identifier}] stream event 'data'`);
+                log.debug(`${this.getLogId()} stream event 'data'`);
                 if (!dataBuffer) dataBuffer = chunk;
                 else dataBuffer += chunk;
             });
 
             this._stream.once('end', () => {
-                log.debug(`[${this._stream.id} - ${this.identifier}] stream event 'end'`);
+                log.debug(`${this.getLogId()} stream event 'end'`);
                 resolve(dataBuffer);
             });
 
@@ -122,7 +129,7 @@ export default class HTTP2Stream extends EventEmitter {
      * @param {Error} err 
      */
      _handleDestroyedStream(err) {
-        log.debug(`[Client stream:${this._stream ? this._stream.id : 'n/a'}] _handleDestroyedStream() method was called`);
+        log.debug(`${this.getLogId()} _handleDestroyedStream() method was called`);
         if (err) {
             log.debug(`[${this.identifier}] emit event 'error'`);
             this.emit('error', err);
@@ -139,7 +146,7 @@ export default class HTTP2Stream extends EventEmitter {
         if (this._stream) this._stream.removeAllListeners();
     
         // tell the outside that the stream has ended
-        log.debug(`[${this.identifier}] emit event 'end'`);
+        log.debug(`${this.getLogId()} emit event 'end'`);
         this.emit('end', err);
 
         // remove all event handlers
@@ -153,7 +160,7 @@ export default class HTTP2Stream extends EventEmitter {
     
 
     end(code) {
-        log.debug(`[Client stream:${this._stream.id}] end() method was called`);
+        log.debug(`${this.getLogId()} end() method was called`);
         this.getStream().close(code);
     }
 }
