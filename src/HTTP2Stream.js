@@ -24,7 +24,7 @@ export default class HTTP2Stream extends EventEmitter {
     }
 
     getLogId() {
-        return `[Client stream ${this.streamId}; this.identifier]: `;
+        return `[${this.identifier}; Id ${this.streamId}]:`;
     }
 
     setStream(stream) {
