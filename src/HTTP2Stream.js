@@ -34,6 +34,7 @@ export default class HTTP2Stream extends EventEmitter {
         this._stream = stream;
         this._headers = new Map();
 
+        this._stream.setTimeout(0);
 
         this._stream.once('response', (headers) => {
             log.debug(`${this.getLogId()} stream event 'response'`);
