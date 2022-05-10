@@ -50,7 +50,7 @@ export default class HTTP2IncomingMessage extends EventEmitter {
      */
      _handleDestroyedStream(err) {
         if (err) {
-            log.error(`Stream error: ${err,message}`, err);
+            log.error(`Stream error: ${err.message}`, err);
             this.emit('error', err);
         }
 
