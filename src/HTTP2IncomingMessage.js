@@ -99,7 +99,7 @@ export default class HTTP2IncomingMessage extends EventEmitter {
     hasHeader(headerName) {
         headerName = headerName.toLowerCase();
         const value = this._headers[headerName];
-        return (Array.isArray(value) && value.length) || (typeof value === 'string' && value.trim().length);
+        return (Array.isArray(value) && value.length) || (typeof value === 'string' && value.trim().length) || (typeof value === 'number');
     }
 
 
