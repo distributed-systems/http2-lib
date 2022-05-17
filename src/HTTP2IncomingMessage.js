@@ -98,7 +98,8 @@ export default class HTTP2IncomingMessage extends EventEmitter {
     */
     hasHeader(headerName) {
         headerName = headerName.toLowerCase();
-        return !!this._headers[headerName];
+        const value = this._headers[headerName];
+        return (Array.isArray(value) && value.length) || (typeof value === 'string' && value.trim().length);
     }
 
 
@@ -107,17 +108,24 @@ export default class HTTP2IncomingMessage extends EventEmitter {
     * get one header
     */
     getHeader(headerName) {
-        headerName = headerName.toLowerCase();
+        if (this.hasHeader(headerName)) {
+            headerName = headerName.toLowerCase();
+            const value = this._headers[headerName];
 
-        if (this.hasHeader('encoded-header-fields')) {
-            const encodedHeaders = new Set(this._headers['encoded-header-fields'].split(','));
+            if (this.hasHeader('encoded-header-fields')) {
+                const encodedHeaders = new Set(this._headers['encoded-header-fields'].split(','));
 
-            if (encodedHeaders.has(headerName)) {
-                return new Buffer(this._headers[headerName], 'base64').toString();
+                if (encodedHeaders.has(headerName)) {
+                    return new Buffer.from(value, 'base64').toString();
+                }
             }
-        }
 
-        return this._headers[headerName];
+            if (Array.isArray(value) && value.length === 1) {
+                return value[0];
+            }
+
+            return value;
+        }
     }
 
 
